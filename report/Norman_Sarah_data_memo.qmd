@@ -1,0 +1,89 @@
+---
+title: "Data Memo"
+subtitle: |
+  | Final Project 
+  | Data Visualization (STAT 302)
+author: "Sarah Norman"
+pagetitle: "Data Memo Sarah Norman"
+date: today
+
+format:
+  html:
+    toc: true
+    toc-location: left
+    embed-resources: true
+    link-external-newwindow: true
+    fig-dpi: 300
+
+execute:
+  warning: false
+
+from: markdown+emoji 
+reference-location: margin
+citation-location: margin
+---
+
+```{r}
+#| label: pkgs-data
+#| echo: false
+
+# loading packages
+library(here)
+library(dplyr)
+library(tidyverse)
+library(DT)
+
+# data
+load(file = here("data/PSPS.rda"))
+
+#remitances - foreign and domestic
+```
+
+::: {.callout-note icon=false}
+## Data Source
+
+Permission has been given to use the following dataset by Research Analysts at the Global Poverty Research Lab (GPRL) at Kellogg. The data below was collected from the Philippines Socioeconomic Panel Survey (PSPS), a longitudinal survey of approximately 13,000 rural households in the Western Visayas region of the Philippines. This particular survey was launched in late 2023.
+
+The survey aims to monitor socioeconomic progress in the Western Visayas over a 20-year period. It also aims to establish a sample population for development researchers to use when carrying out randomized trials. Data collection for the survey is scheduled to take place every four years.
+
+The data is currently under review and is expected to be published in the coming months. This memo draws from the Wage and Unearned Income module of the survey, which is in the process of being labeled in Stata but is otherwise clean.
+
+:::
+
+## Why this data
+
+I currently work as a research assistant for GPRL, where I focus on data cleaning and generating summary statistics for various projects. I am one of the RAs currently helping to clean the PSPS data, which is why I’m particularly interested in using it for my project. As an international student from the Philippines, I’m also eager to explore how my own experiences and knowledge might be reflected in the survey data—and, more broadly, how I can visualize data about my home country.
+
+I also believe it would be valuable to work with raw, real-world data—especially since the visualizations I create for this module could be useful to the lab or, at the very least, provide meaningful experience working with lab-provided data. Although the dataset is technically “clean,” it has significant missingness. While this would be a major concern for generating summary statistics, I believe it’s still workable for data visualization purposes. Although the missingness is less than ideal, I recognize that this is often the reality in large-scale survey projects.
+
+With this data, I am interested in exploring how income varies across different subgroups within the sample, as well as what constitutes income. For example, individuals may receive unearned income, work non-agricultural jobs, and/or engage in agricultural work. Income and occupation can also be compared across demographic facets such as age and gender.
+
+Understanding these patterns will help shed light on the livelihoods and labor dynamics of households in the Western Visayas region and provide a broader summary of the data collected through the survey.
+
+## Visualization plan
+
+I am interested in developing a Shiny app that enables easy comparison of different forms of income based on demographic factors such as gender, age, and education. I also plan to include a dedicated tab for unearned income to explore how it varies across groups. Additional variables of interest include hours worked and reasons for not working. The app will serve as a clear, user-friendly tool for summarizing the data and facilitating subgroup comparisons. I envision organizing the various work-related variables (e.g., type of work, hours worked, and type of income) into separate tabs, with a sidebar that allows users to filter by demographic characteristics. I plan to incorporate bar graphs and density plots, as well as faceted visualizations to compare trends across different groups.
+
+## Initial data issues
+
+Given that the survey data is broken up into modules I had to do some data manipulation. I had to combine modules 1 (which was comrpised of general demographic factors such as age and gender) with module 3 (the module on wage and unearned income). This was because i am interested in seeing variations across gender, age, education and relationship status, all information that was collected in module one. This new combined version of the data has been renamed to `PSPS` and can be found in the `data` folder.
+
+Additionally, as mentioned previously, there is significant data missingness, which I observed in my initial overview of the dataset. The majority of variables have upwards of 60% missingness, which is notably significant. However, given the sheer number of observations in the study (71,152), even 30% of the overall sample would still result in over 20,000 observations—making the data workable for analysis.
+
+```{r}
+#| label: tbl-1
+#| tbl-cap: "Missing Data Summary by Variable"
+#| echo: false
+
+naniar::miss_var_summary(PSPS) |>
+  mutate(pct_miss = round(pct_miss, digits = 3)) |>
+  datatable(caption = "Number of Missingess and Percentage of Missingness Per Variable")
+
+```
+
+Lastly, the naming conventions for the variables are not very intuitive, which will result in a heavy reliance on the codebook. Frequently used variables may need to be renamed for ease of computation.
+
+## Use of AI
+
+This analysis made use of AI tools—primarily ChatGPT-4 and ChatGPT-3—for tasks such as troubleshooting, as well as for spelling and grammar review. Text was often submitted to ChatGPT for proofreading and refinement, and the tool was also consulted for suggestions to enhance descriptions or analytical explanations. In a few instances, code was entered for debugging purposes; however, the responses were generally unhelpful, as they tended to offer overly complex solutions involving unfamiliar functions and arguments.
+

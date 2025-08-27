@@ -1,0 +1,271 @@
+# loading packages
+library(readr) 
+library(here)
+library(dplyr)
+library(tidyverse)
+library(ggplot2)
+library(DT)
+
+# loading data
+load(file = here("data/PSPS.rda"))
+
+naniar::miss_var_summary(PSPS) |>
+  print(n = 300)
+
+# Earned Income ----
+## bar graph of agri job types ----
+
+PSPS |>
+  
+  #simple data manipulation
+  filter(!is.na(agwork_prod_1)) |>
+  separate_rows(agwork_prod_1, sep = " ") |>
+  filter(agwork_prod_1 %in% c("1", "2", "3", "4", "5", "6", "7", "8")) |>
+  count(agwork_prod_1) |>
+  mutate(prop = n / sum(n)) |>
+  
+  #creating bar graph
+  ggplot(aes(x = agwork_prod_1, y = prop)) +
+  geom_col() +
+  
+  #labeling
+    scale_x_discrete(labels = c(
+      "1" = "Farming (Crops)",
+      "2" = "Raising Livestock",
+      "3" = "Selling Livestock Products",
+      "4" = "Raising Poultry",
+      "5" = "Selling Poultry Products",
+      "6" = "Fishing or Aquaculture",
+      "7" = "Timber Cultivation",
+      "8" = "Forest Conservation"
+    )) +
+  labs(x = "Code", y = "Count", title = "Frequency of Agricultural Work Codes") +
+  theme(
+    axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)
+  )
+
+## bar graph of nonagri job types ----
+
+PSPS |>
+  
+  #simple data manipulation
+  filter(!is.na(agwork_prod_1)) |>
+  separate_rows(agwork_prod_1, sep = " ") |>
+  filter(agwork_prod_1 %in% c("1", "2", "3", "4", "5", "6", "7", "8")) |>
+  count(agwork_prod_1) |>
+  mutate(prop = n / sum(n)) |>
+  
+  #creating bar graph
+  ggplot(aes(x = agwork_prod_1, y = prop)) +
+  geom_col() +
+  
+  #labeling
+  scale_x_discrete(labels = c(
+    "1" = "Farming (Crops)",
+    "2" = "Raising Livestock",
+    "3" = "Selling Livestock Products",
+    "4" = "Raising Poultry",
+    "5" = "Selling Poultry Products",
+    "6" = "Fishing or Aquaculture",
+    "7" = "Timber Cultivation",
+    "8" = "Forest Conservation"
+  )) +
+  labs(x = "Code", y = "Count", title = "Frequency of Agricultural Work Codes") +
+  theme(
+    axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)
+  )
+
+PSPS |>
+  
+  #simple data manipulation
+  filter(!is.na(nonagwork_occ_1)) |>
+  filter(nonagwork_occ_1 != -666) |>
+  count(nonagwork_occ_1) |>
+  slice_max(n = 10, order_by = n) |>
+  mutate(
+    prop = n / sum(n),
+    nonagwork_occ_1 = as.factor(nonagwork_occ_1)
+         ) |>
+
+  #creating bar graph
+  ggplot(aes(x = nonagwork_occ_1, y = prop)) +
+  geom_col() +
+  
+  #labeling
+  scale_x_discrete(labels = c(
+    "1" = "Retail",
+    "2" = "Construction",
+    "3" = "Trades (e.g. welding)",
+    "4" = "Transport",
+    "5" = "Services (e.g. food)",
+    "6" = "Manufacturing",
+    "8" = "Education",
+    "10" = "BPO",
+    "14" = "Domestic Work",
+    "15" = "Government"
+  )) +
+  labs(x = "Code", y = "Count", title = "Frequency of Agricultural Work Codes") +
+  theme(
+    axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)
+  )
+
+## boxplot ----
+PSPS_standardized_pay <- PSPS |>
+  filter(!nonagwork_pay_sch_1 %in% c(-666, -888, -999)) |>
+  mutate(
+    # Convert code to numeric if needed
+    nonagwork_pay_sch_1 = as.numeric(nonagwork_pay_sch_1),
+    
+    # Define multiplier based on pay schedule
+    multiplier = case_when(
+      nonagwork_pay_sch_1 == 1 ~ 26,       # Daily
+      nonagwork_pay_sch_1 == 2 ~ 4.33,     # Weekly
+      nonagwork_pay_sch_1 == 3 ~ 2.17,     # Biweekly
+      nonagwork_pay_sch_1 == 4 ~ 1,        # Monthly
+      nonagwork_pay_sch_1 == 5 ~ 0.5,      # Every other month
+      nonagwork_pay_sch_1 == 6 ~ 0.33,     # Quarterly
+      nonagwork_pay_sch_1 == 7 ~ 1,        # Irregular — treat as monthly
+      nonagwork_pay_sch_1 == 8 ~ 1/12,     # Yearly
+      nonagwork_pay_sch_1 == 9 ~ 1/12,     # One-time
+      TRUE ~ NA_real_
+    ),
+    
+    # Calculate monthly pay
+    agwork_monthly_pay_1 = as.numeric(v_agwork_pay_amt_1) * multiplier,
+    nonagwork_monthly_pay_1 = as.numeric(v_nonagwork_pay_amt_1) * multiplier,
+    total_monthly_pay = rowSums(across(c(agwork_monthly_pay_1, nonagwork_monthly_pay_1)), na.rm = TRUE)
+  ) |>
+  mutate(
+    gender = if_else(r_gender == 1, "Female", "Male")
+  ) |>
+  select(-r_gender) |>
+  relocate(agwork_monthly_pay_1, nonagwork_monthly_pay_1)
+
+# density plot of monthly earnings log transformed (scale of 10) - nonagri
+PSPS_standardized_pay |>
+  ggplot(aes(x = log10(nonagwork_monthly_pay_1 + 1))) +
+  geom_histogram(aes(y = after_stat(count)), fill = "lightblue", alpha = 0.5, ) +
+  scale_x_continuous(
+    name = "Monthly earnings (log scale)",
+    breaks = 1:6,
+    labels = scales::label_dollar(prefix = "₱", scale = 1)(10 ^ (1:6)),
+    expand = c(0, 0)
+  ) +
+  labs(
+    y = NULL
+  ) +
+  scale_y_continuous(
+    expand = c(0, 0)) +
+  theme_bw() +
+  theme(
+    plot.margin = margin(t = 10, r = 20, b = 10, l = 20)
+  )
+
+# density plot of monthly earnings log transformed (scale of 10) - agri
+
+PSPS_standardized_pay |>
+  ggplot(aes(x = log10(agwork_monthly_pay_1 + 1))) +
+  geom_histogram(aes(y = after_stat(count)), fill = "lightblue", alpha = 0.5, ) +
+  scale_x_continuous(
+    name = "Monthly earnings (log scale)",
+    breaks = 1:6,
+    labels = scales::label_dollar(prefix = "₱", scale = 1)(10 ^ (1:6)),
+    expand = c(0, 0)
+  ) +
+  labs(
+    y = NULL
+  ) +
+  scale_y_continuous(
+    expand = c(0, 0)
+    ) +
+  theme_bw() +
+  theme(
+    plot.margin = margin(t = 10, r = 20, b = 10, l = 20)
+  )
+
+
+# density plot of monthly earnings log transformed (scale of 10) - Gender
+PSPS_standardized_pay |>
+  ggplot(aes(x = log10(agwork_monthly_pay_1))) +
+  geom_histogram(aes(y = after_stat(count), fill = gender), alpha = 0.5) +
+  scale_x_continuous(
+    name = "Monthly earnings (log scale)",
+    breaks = 1:6,
+    labels = scales::label_dollar(prefix = "₱", scale = 1)(10 ^ (1:6)),
+    expand = c(0, 0)
+  ) +
+  labs(
+    y = NULL
+  ) +
+  scale_y_continuous(
+    expand = c(0, 0),
+    limits = c(0, 500)) +
+  theme_bw() +
+  theme(
+    plot.margin = margin(t = 10, r = 20, b = 10, l = 20)
+  )
+
+# density plot of monthly earnings log transformed (scale of 10) - agri-nonagri
+PSPS_standardized_pay |>
+  ggplot(aes(x = log10(nonagwork_monthly_pay_1))) +
+  geom_histogram(aes(fill = gender), alpha = 0.5) +
+  scale_x_continuous(
+    name = "Monthly earnings (log scale)",
+    breaks = 1:6,
+    labels = scales::label_dollar(prefix = "₱", scale = 1)(10 ^ (1:6)),
+    expand = c(0, 0)
+  ) +
+  labs(
+    y = NULL
+  ) +
+  scale_y_continuous(
+    expand = c(0, 0)
+    ) +
+  theme_bw() +
+  theme(
+    plot.margin = margin(t = 10, r = 20, b = 10, l = 20)
+  )
+
+# density plot of monthly earnings log transformed (scale of 10) - Age
+PSPS_standardized_pay |>
+  ggplot(aes(x = log10(nonagwork_monthly_pay_1), y = r_age)) +
+  geom_point() +
+  scale_x_continuous(
+    name = "Monthly earnings (log scale)",
+    breaks = 1:6,
+    labels = scales::label_dollar(prefix = "₱", scale = 1)(10 ^ (1:6)),
+    expand = c(0, 0)
+  ) +
+  labs(
+    y = NULL
+  ) +
+  scale_y_continuous(
+    expand = c(0, 0),
+    limits = c(0, 100)) +
+  theme_bw() +
+  theme(
+    plot.margin = margin(t = 10, r = 20, b = 10, l = 20)
+  )
+
+# density plot of monthly earnings log transformed (scale of 10) - Age
+PSPS_standardized_pay |>
+  ggplot(aes(x = log10(agwork_monthly_pay_1), y = r_age)) +
+  geom_point() +
+  scale_x_continuous(
+    name = "Monthly earnings (log scale)",
+    breaks = 1:6,
+    labels = scales::label_dollar(prefix = "₱", scale = 1)(10 ^ (1:6)),
+    expand = c(0, 0)
+  ) +
+  labs(
+    y = NULL
+  ) +
+  scale_y_continuous(
+    expand = c(0, 0),
+    limits = c(0, 100)) +
+  theme_bw() +
+  theme(
+    plot.margin = margin(t = 10, r = 20, b = 10, l = 20)
+  )
+
+

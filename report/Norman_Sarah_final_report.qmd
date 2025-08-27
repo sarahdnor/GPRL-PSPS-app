@@ -1,0 +1,103 @@
+---
+title: "Final Project Report"
+subtitle: |
+  | Final Project 
+  | Data Visualization with R (STAT 302)
+author:
+  - name: Sarah Norman
+date: today
+
+format:
+  html:
+    theme: cosmo
+    toc: true
+    toc-depth: 4
+    toc-location: left
+    embed-resources: true
+    code-fold: false
+    link-external-newwindow: true
+
+execute:
+  warning: false
+
+from: markdown+emoji
+reference-location: margin
+citation-location: margin 
+---
+
+[Sarah's Final Project](https://sarahdnor.shinyapps.io/app-final/)
+
+My dashboard leverages real-world data collected by the Global Poverty Research Lab (GPRL) on the Philippines. I decided to create this dashboard to provide more comprehensive visualizations of different facets of monthly earnings based on various indicators which are mentioned below.
+
+# **Data Manipulation:**
+
+Data cleaning and manipulation were necessary for this dashboard. First, two modules were combined to create the final PSPS dataset: the labor and income module and the preliminary demographic information module. These two datasets were merged to allow for multivariate analysis of variables such as age and gender in relation to labor and earnings.
+
+Another significant change to the dataset involved creating a monthly earnings variable. Because respondents in agricultural and non-agricultural positions reported their pay using different periods (daily, weekly, yearly, etc.), a multiplier was applied to convert all pay amounts to a monthly scale for comparability. While this transformation could be considered a limitation of the study, it was essential to enable meaningful comparisons across respondents. This conversion was performed for the respondents’ primary occupation, as they were allowed to list multiple jobs.
+
+# **Rational behind Visuals:**
+
+I decided to divide my analysis into earned income (agricultural and non-agricultural jobs) and unearned income (specifically remittances) because these were the two main themes identified in the questionnaire documentation from GPRL.
+
+I decided to use a density graph to examine agricultural and non-agricultural earnings (as well as compare across gender) because there was a large variation in respondent size. If I tried to keep the x and y axes the same across graphs, it became very difficult to interpret the values for agriculture (given the smaller number of respondents). This is why I chose a density graph, although I acknowledge that it may be less intuitive for users.
+
+I then wanted to explore the different agricultural and non-agricultural jobs reported by respondents, so I decided to include a bar graph in a card to the right of the earned income graphs.
+
+Because remittances (both domestic and foreign) had a more similar count of respondents, I decided to graph them using a histogram rather than a density plot.
+
+I added sliders for the histogram and density plots that allows users to customize the number of bins and the bandwidth, respectively. This enables users to choose the level of granularity they want to explore in the data.
+
+All of this was done to explore trends in earnings across different sub-demographics within the sample.
+
+
+# **Insights from each tab:**
+
+## **Earned income:**
+
+The Earned Income tab displays the relationship between monthly earnings, giving users the option to view this for either agricultural or non-agricultural jobs. This tab also allows users to conduct a bivariate analysis by adding the variable of age or gender. 
+
+This visualization took the form of either a density plot (for gender and monthly earnings for either agricultural or non-agricultural jobs) or a scatterplot (when examining the relationship between age and monthly earnings for either agricultural or non-agricultural jobs).
+
+In addition to this visualization, there was an accompanying bar graph to the right that displayed the different agricultural and non-agricultural positions reported by respondents (with rarely occurring categories grouped into “Other”). 
+
+These visuals aimed to provide insights into the key indicators of monthly earnings and how earnings differ between agricultural and non-agricultural jobs in the sample.
+
+*Agricultural & Non-Agricultural jobs:*
+
+- The density plots highlighted that non-agriculture workers generally earn more than agriculture workers as The earnings distribution for non-agriculture workers peaks at a higher monthly earnings value on the log scale, this was a fairly intuitive insight. 
+
+- the most common agricultural position was farming, again which was intuitive but it was interesting to see that the majority of non agriclture respondants worked in the service or construction industry.
+
+*Agricultural & Non-Agricultural jobs by gender:*
+
+- When conducting multivariate analysis that includes gender, the earnings gap between males and females is not as wide as one might anticipate, especially in agricultural jobs. In fact, women in agriculture often earn more on average than their male counterparts, according to the sample.
+
+*Agricultural & Non-Agricultural jobs by age:*
+
+- The scatterplot comparing age and monthly earnings does not reveal any strong trends. The trend line suggests that age is a minor indicator of monthly wages. Age might not be a strong determinant of earnings in this sample—earnings may be influenced more by other factors such as education, occupation, gender, and sector. This finding holds for both agricultural and non-agricultural jobs, although the standard error bands are wider for non-agricultural jobs (due to the greater sparsity of points at the extremes).
+
+## **Unearned income:**
+
+The Unearned Income tab displays the relationship between monthly earnings, giving users the option to view this for either domestic or foreign remittances. This tab also allows users to conduct a bivariate analysis by adding the variable of age or gender. 
+
+This visualization took the form of either a histogram (for gender and monthly earnings for either domestic or foreign remittances) or a scatterplot (when examining the relationship between age and monthly earnings for either domestic or foreign remittances).
+
+*Domestic & Foreign Remittances:*
+
+- The histograms reveal that a significantly larger number of respondents reported receiving domestic remittances compared to foreign remittances, which is surprising given the strong culture of overseas migration in the Philippines. However, foreign remittances exhibit a wider spread of earnings values, highlighting that domestic remittances tend to be more consistent and clustered within a narrower earnings range.
+
+*Domestic & Foreign Remittances by gender*
+
+- For foreign remittances, there is a more balanced representation of gender across earnings levels. In contrast, domestic remittances show that women outnumber men, highlighting how domestic remittances are a significant and consistent income source for women in the surveyed population.
+
+*Domestic & Foreign Remittances by age*
+
+- For foreign remittances, recipients are spread across all ages, with a slight increase in earnings among middle-aged recipients before plateauing and dipping slightly at older ages. For domestic remittances, recipients also span all ages but earnings decline more noticeably with age. This suggests that while both remittance types benefit recipients at various life stages, domestic remittance earnings tend to drop off more significantly for older recipients than foreign remittance earnings.
+
+## Use of AI
+
+This analysis made use of AI tools—primarily ChatGPT-4 and ChatGPT-3—for tasks such as troubleshooting, as well as for spelling and grammar review. Text was often submitted to ChatGPT for proofreading and refinement, and the tool was also consulted for suggestions to enhance descriptions or analytical explanations. In a few instances, code was entered for debugging purposes; however, the responses were generally unhelpful, as they tended to offer overly complex solutions involving unfamiliar functions and arguments.
+
+
+
+
