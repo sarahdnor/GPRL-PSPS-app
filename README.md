@@ -9,6 +9,6 @@ The analysis focuses on **migration trends across age, gender, and socioeconomic
 
 ##  Folders
 
-- `App-final`: final rendered outputs (HTML dashboard/app)
-- `Report`: written analysis and executive summary files (Quarto `.qmd`)
-- `scripts`: R scripts for data cleaning, analysis, and visualization
+- [App-final](App-final): final rendered outputs (HTML dashboard/app)
+- [report](report): written analysis and executive summary files (Quarto `.qmd`)
+- [scripts](scripts): R scripts for data cleaning, analysis, and visualization
